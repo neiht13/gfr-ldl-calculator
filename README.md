@@ -1,7 +1,5 @@
 # Công Cụ Tính eGFR và LDL
 
-![Logo](path_to_logo.png) <!-- Thay thế bằng đường dẫn đến logo nếu có -->
-
 ## Mô Tả
 
 **Công Cụ Tính eGFR và LDL** là một ứng dụng web đơn giản và trực quan giúp người dùng dễ dàng tính toán các chỉ số y tế quan trọng như eGFR (Estimated Glomerular Filtration Rate) và LDL (Low-Density Lipoprotein) dựa trên các thông số nhập vào. Công cụ hỗ trợ người dùng chọn đơn vị đo lường phù hợp và cung cấp công thức tính toán chính xác dựa trên lựa chọn đó.
@@ -26,18 +24,19 @@
   - Thông báo lỗi rõ ràng khi nhập dữ liệu không hợp lệ.
 
 ## Hình Ảnh Minh Họa
+![image](https://github.com/user-attachments/assets/125977a2-eec7-47b6-a2e0-2e0e9571171f)
 
-![Giao diện công cụ](path_to_screenshot.png) <!-- Thay thế bằng đường dẫn đến ảnh chụp màn hình nếu có -->
+![image](https://github.com/user-attachments/assets/305e171f-2975-4f7e-a959-91d810250911)
 
 ## Cài Đặt và Sử Dụng
 
 ### Yêu Cầu
 
-- Trình duyệt web hiện đại (Chrome, Firefox, Edge, Safari, v.v.)
+- Trình duyệt web (Chrome, Firefox, Edge, Safari, v.v.)
 
 ### Cách Sử Dụng
 
 1. **Clone Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/eGFR-LDL-Calculator.git
+   git clone https://github.com/neiht13/eGFR-LDL-Calculator.git

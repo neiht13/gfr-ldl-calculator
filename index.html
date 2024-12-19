@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIS Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+        }
+
+        .calculator {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 17px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .calculator:hover {
+            transform: translateY(-10px);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #ddd;
+
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid tomato;
+            color: tomato;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 17px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            color: #333;
+            background-color: #f9f9f9;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #007BFF;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group input {
+            flex: 1;
+            margin-bottom: 0;
+            border-radius: 17px 0 0 17px;
+            border-right: none;
+        }
+
+        .input-group select {
+            width: auto;
+            margin-bottom: 0;
+            border-radius: 0 17px 17px 0;
+            border-left: none;
+            height: 44px;
+        }
+
+        /* Button Styles */
+        .button-pushable {
+            position: relative;
+            border: none;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            outline-offset: 4px;
+            transition: filter 250ms;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .button-shadow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 17px;
+            background: rgba(0,0,0,0.25);
+            will-change: transform;
+            transform: translateY(2px);
+            transition:
+              transform
+              600ms
+              cubic-bezier(.3, .7, .4, 1);
+        }
+
+        .button-edge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 17px;
+            background: linear-gradient(
+              to left,
+              #d4543b 0%,
+              #ff6347 50%,
+              #d4543b 100%
+            );
+        }
+
+        .button-front {
+            display: block;
+            position: relative;
+            padding: 12px 27px;
+            border-radius: 17px;
+            font-size: 1.1rem;
+            color: white;
+            background: tomato;
+            will-change: transform;
+            transform: translateY(-4px);
+            transition:
+              transform
+              600ms
+              cubic-bezier(.3, .7, .4, 1);
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .button-front {
+                font-size: 1.25rem;
+                padding: 12px 42px;
+            }
+        }
+
+        .button-pushable:hover {
+            filter: brightness(110%);
+            -webkit-filter: brightness(110%);
+        }
+
+        .button-pushable:hover .button-front {
+            transform: translateY(-6px);
+            transition:
+              transform
+              250ms
+              cubic-bezier(.3, .7, .4, 1.5);
+        }
+
+        .button-pushable:active .button-front {
+            transform: translateY(-2px);
+            transition: transform 34ms;
+        }
+
+        .button-pushable:hover .button-shadow {
+            transform: translateY(4px);
+            transition:
+              transform
+              250ms
+              cubic-bezier(.3, .7, .4, 1.5);
+        }
+
+        .button-pushable:active .button-shadow {
+            transform: translateY(1px);
+            transition: transform 34ms;
+        }
+
+        .button-pushable:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .result .value {
+            font-size: 1.5rem;
+            color: #007BFF;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px; /* Khoảng cách giữa 2 cột */
+        }
+
+        .row .column {
+            flex: 1;
+        }
+
+        .formula-text {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="tabs">
+            <div class="tab active" data-tab="egfr">Công cụ tính eGFR</div>
+            <div class="tab" data-tab="ldl">Công cụ tính LDL</div>
+        </div>
+
+        <div class="tab-content active" id="egfr">
+            <h1>Công cụ tính eGFR<br>(MDRD - Phương pháp Jaffe)</h1>
+            <div class="formula-text" id="formulaText">
+            </div>
+
+            <label for="creatinine">Chỉ số Creatinine:</label>
+            <div class="input-group">
+                <input type="number" id="creatinine" step="0.01" placeholder="Nhập chỉ số Creatinine" required>
+                <select id="unit" required>
+                    <option value="umol" selected>µmol/L</option>
+                    <option value="mgdl">mg/dL</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="column">
+                    <label for="age">Tuổi hoặc Năm sinh:</label>
+                    <input type="number" id="age" placeholder="Nhập tuổi hoặc năm sinh" required>
+                </div>
+                <div class="column">
+                    <label for="gender">Giới tính:</label>
+                    <select id="gender" required>
+                        <option value="male" selected>Nam</option>
+                        <option value="female">Nữ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <label for="ethnicity">Chủng tộc:</label>
+                    <select id="ethnicity" required>
+                        <option value="non_african" selected>Không gốc da đen</option>
+                        <option value="african">Gốc da đen</option>
+                    </select>
+                </div>
+                <div class="column">
+                    <label for="constant">Chọn hằng số:</label>
+                    <select id="constant" required>
+                        <option value="186" selected>186</option>
+                        <option value="175">175</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="button-pushable" role="button" id="calculateButton">
+                <span class="button-shadow"></span>
+                <span class="button-edge"></span>
+                <span class="button-front text">
+                    Tính eGFR
+                </span>
+            </button>
+
+            <div class="result" id="result"></div>
+        </div>
+
+        <div class="tab-content" id="ldl">
+            <h1>Công cụ tính LDL</h1>
+            <div class="formula-text" id="ldlFormulaText">
+            </div>
+
+            <label for="total_chol">Tổng Cholesterol (CHOL):</label>
+            <div class="input-group">
+                <input type="number" id="total_chol" step="0.01" placeholder="Nhập Tổng Cholesterol" required>
+                <select id="chol_unit" required>
+                    <option value="mmol" selected>mmol/L</option>
+                    <option value="mgdl">mg/dL</option>
+                </select>
+            </div>
+
+            <label for="hdl">HDL Cholesterol (HDL):</label>
+            <div class="input-group">
+                <input type="number" id="hdl" step="0.01" placeholder="Nhập HDL Cholesterol" required>
+                <select id="hdl_unit" required>
+                    <option value="mmol" selected>mmol/L</option>
+                    <option value="mgdl">mg/dL</option>
+                </select>
+            </div>
+
+            <label for="trig">Triglycerides (TRIG):</label>
+            <div class="input-group">
+                <input type="number" id="trig" step="0.01" placeholder="Nhập Triglycerides" required>
+                <select id="trig_unit" required>
+                    <option value="mmol" selected>mmol/L</option>
+                    <option value="mgdl">mg/dL</option>
+                </select>
+            </div>
+
+            <button class="button-pushable" role="button" id="calculateLDLButton">
+                <span class="button-shadow"></span>
+                <span class="button-edge"></span>
+                <span class="button-front text">
+                    Tính LDL
+                </span>
+            </button>
+
+            <div class="result" id="ldlResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                tabContents.forEach(content => content.classList.remove('active'));
+                // Show the selected tab content
+                const activeTab = tab.getAttribute('data-tab');
+                document.getElementById(activeTab).classList.add('active');
+            });
+        });
+
+        const unitSelect = document.getElementById('unit');
+        const formulaText = document.getElementById('formulaText');
+        const constantSelect = document.getElementById('constant');
+
+        function updateEGFRFormula() {
+            const unit = unitSelect.value;
+            const constant = parseFloat(constantSelect.value);
+            let formula = '';
+
+            if (unit === 'umol') {
+                formula = `
+                    <strong>Công thức MDRD - Jaffe Method (với µmol/L):</strong><br>
+                    eGFR = ${constant} × ((Creatinine / 88.4)<sup>-1.154</sup>) × (Tuổi<sup>-0.203</sup>) <br/> × (0.742 nếu là nữ) × (1.212 nếu là người da đen)
+                `;
+            } else if (unit === 'mgdl') {
+                formula = `
+                    <strong>Công thức MDRD - Jaffe Method (với mg/dL):</strong><br>
+                    eGFR = ${constant} × (Creatinine<sup>-1.154</sup>) × (Tuổi<sup>-0.203</sup>) <br/> × (0.742 nếu là nữ) × (1.212 nếu là người da đen)
+                `;
+            } else {
+                formula = `
+                    <strong>Công thức MDRD - Jaffe Method:</strong><br>
+                    Vui lòng chọn đơn vị Creatinine để hiển thị công thức.
+                `;
+            }
+
+            formulaText.innerHTML = formula;
+        }
+
+        unitSelect.addEventListener('change', updateEGFRFormula);
+        constantSelect.addEventListener('change', updateEGFRFormula);
+
+        updateEGFRFormula();
+
+        document.getElementById('calculateButton').addEventListener('click', calculateEGFR);
+
+        function calculateEGFR() {
+            const creatinine = parseFloat(document.getElementById('creatinine').value);
+            const unit = document.getElementById('unit').value;
+            const constant = parseFloat(constantSelect.value);
+            const ageInput = document.getElementById('age').value.trim();
+            const gender = document.getElementById('gender').value;
+            const ethnicity = document.getElementById('ethnicity').value;
+
+            let age = parseInt(ageInput);
+            const currentYear = new Date().getFullYear();
+
+            if (ageInput.length === 4 && age <= currentYear && age > 1900) {
+                age = currentYear - age; // Tính tuổi từ năm sinh
+            } else if (isNaN(age) || age <= 0 || age > 150) {
+                document.getElementById('result').textContent = 'Vui lòng nhập tuổi hoặc năm sinh hợp lệ.';
+                return;
+            }
+
+            if (isNaN(creatinine) || !unit || isNaN(age) || !gender || !ethnicity) {
+                document.getElementById('result').textContent = 'Vui lòng điền đầy đủ và chính xác các trường.';
+                return;
+            }
+
+            let creatinine_mg_dL;
+            if (unit === 'umol') {
+                creatinine_mg_dL = creatinine / 88.4;
+            } else {
+                creatinine_mg_dL = creatinine;
+            }
+
+            let eGFR = constant * Math.pow(creatinine_mg_dL, -1.154) * Math.pow(age, -0.203);
+
+            if (gender === 'female') eGFR *= 0.742; 
+            if (ethnicity === 'african') eGFR *= 1.212; 
+
+            document.getElementById('result').innerHTML = `Chỉ số eGFR: <span class="value">${eGFR.toFixed(2)}</span> mL/min/1.73m²`;
+        }
+
+        const cholUnitSelect = document.getElementById('chol_unit');
+        const hdlUnitSelect = document.getElementById('hdl_unit');
+        const trigUnitSelect = document.getElementById('trig_unit');
+        const ldlFormulaText = document.getElementById('ldlFormulaText');
+
+        function updateLDLFormula() {
+            const cholUnit = cholUnitSelect.value;
+            const hdlUnit = hdlUnitSelect.value;
+            const trigUnit = trigUnitSelect.value;
+
+            let formula = '<strong>Công thức Friedewald:</strong><br>';
+
+            if (cholUnit === 'mmol' && hdlUnit === 'mmol' && trigUnit === 'mmol') {
+                formula += 'LDL = CHOL - HDL - (TRIG / 2.2)';
+            } else if (cholUnit === 'mgdl' && hdlUnit === 'mgdl' && trigUnit === 'mgdl') {
+                formula += 'LDL = CHOL - HDL - (TRIG / 5)';
+            } else {
+                formula += 'Vui lòng chọn cùng đơn vị cho CHOL, HDL và TRIG để hiển thị công thức.';
+            }
+
+            ldlFormulaText.innerHTML = formula;
+        }
+
+        function syncLDLUnits(changedSelect, newUnit) {
+            if (changedSelect !== cholUnitSelect) {
+                cholUnitSelect.value = newUnit;
+            }
+            if (changedSelect !== hdlUnitSelect) {
+                hdlUnitSelect.value = newUnit;
+            }
+            if (changedSelect !== trigUnitSelect) {
+                trigUnitSelect.value = newUnit;
+            }
+            updateLDLFormula();
+        }
+
+        cholUnitSelect.addEventListener('change', () => {
+            const newUnit = cholUnitSelect.value;
+            syncLDLUnits(cholUnitSelect, newUnit);
+        });
+
+        hdlUnitSelect.addEventListener('change', () => {
+            const newUnit = hdlUnitSelect.value;
+            syncLDLUnits(hdlUnitSelect, newUnit);
+        });
+
+        trigUnitSelect.addEventListener('change', () => {
+            const newUnit = trigUnitSelect.value;
+            syncLDLUnits(trigUnitSelect, newUnit);
+        });
+
+        updateLDLFormula();
+
+        document.getElementById('calculateLDLButton').addEventListener('click', calculateLDL);
+
+        function calculateLDL() {
+            const chol = parseFloat(document.getElementById('total_chol').value);
+            const cholUnit = document.getElementById('chol_unit').value;
+            const hdl = parseFloat(document.getElementById('hdl').value);
+            const hdlUnit = document.getElementById('hdl_unit').value;
+            const trig = parseFloat(document.getElementById('trig').value);
+            const trigUnit = document.getElementById('trig_unit').value;
+
+            if (isNaN(chol) || isNaN(hdl) || isNaN(trig)) {
+                document.getElementById('ldlResult').textContent = 'Vui lòng điền đầy đủ và chính xác các trường.';
+                return;
+            }
+
+            if (cholUnit !== hdlUnit || cholUnit !== trigUnit) {
+                document.getElementById('ldlResult').textContent = 'Vui lòng chọn cùng đơn vị cho CHOL, HDL và TRIG.';
+                return;
+            }
+
+            if (chol < 0 || hdl < 0 || trig < 0) {
+                document.getElementById('ldlResult').textContent = 'Giá trị không thể âm. Vui lòng kiểm tra lại.';
+                return;
+            }
+
+            let ldl;
+            if (cholUnit === 'mmol') {
+                ldl = chol - hdl - (trig / 2.2);
+            } else if (cholUnit === 'mgdl') {
+                ldl = chol - hdl - (trig / 5);
+            } else {
+                document.getElementById('ldlResult').textContent = 'Đơn vị không hợp lệ.';
+                return;
+            }
+
+            if (ldl < 0) {
+                document.getElementById('ldlResult').textContent = 'Giá trị TRIG quá cao so với CHOL và HDL. Vui lòng kiểm tra lại.';
+                return;
+            }
+
+            const resultUnit = cholUnit === 'mmol' ? 'mmol/L' : 'mg/dL';
+
+            document.getElementById('ldlResult').innerHTML = `Chỉ số LDL: <span class="value">${ldl.toFixed(2)}</span> ${resultUnit}`;
+        }
+    </script>
+</body>
+</html>
